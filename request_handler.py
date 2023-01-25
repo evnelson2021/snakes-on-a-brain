@@ -3,7 +3,7 @@
 
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from views import get_all_species
+from views import get_all_species, get_single_species, get_all_snakes, get_single_snake, create_snake, get_all_owners, get_single_owner
 
 
 class HandleRequests(BaseHTTPRequestHandler):
@@ -31,28 +31,86 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         return (resource, id)  # This is a tuple
 
-
     def do_GET(self):
         """Handles GET requests to the server """
         self._set_headers(200)
         response = {}
+        # content_len = int(self.headers.get('content-length', 0))
+        # post_body = self.rfile.read(content_len)
+        # post_body = json.dumps(post_body)
 
         (resource, id) = self.parse_url(self.path)
 
         if resource == "species":
-            # if id is not None:
-            #     response = get_single_species(id)
+            if id is not None:
+                response = get_single_species(id)
 
-            # else:
+            else:
                 response = get_all_species()
 
+        if resource == "snakes":
+            if id is not None:
+                response = get_single_snake(id)
 
-        self.wfile.write(json.dumps(response).encode())    
+            else:
+                response = get_all_snakes()
 
+        # if resource == "snakes":
+        #     if id is not None:
+        #         if ['species_id'] == '2':
+        #             self._set_headers(405)
+        #             response = ""
+        #         else:
+        #             response = get_single_snake(id)
 
+        #     else:
+        #         response = get_all_snakes()
 
+        if resource == "owners":
+            if id is not None:
+                response = get_single_owner(id)
 
+            else:
+                response = get_all_owners()
 
+        # self.wfile.write(json.dumps(response).encode())
+
+        # if resource == "snakes":
+        #     if id is not None:
+        #         success = (['species_id'] == '2')
+
+        #         if success:
+        #             self._set_headers(405)
+        #         else:
+        #             self._set_headers(200)
+        #             get_single_snake(id, response)
+
+        #     else:
+        #         response = get_all_snakes()
+
+        self.wfile.write(json.dumps(response).encode())
+
+    def do_POST(self):
+        """Handles POST requests to the server"""
+        self._set_headers(201)
+        content_len = int(self.headers.get('content-length', 0))
+        post_body = self.rfile.read(content_len)
+
+        # Convert JSON string to a Python dictionary
+        post_body = json.loads(post_body)
+
+        # Parse the URL
+        (resource, id) = self.parse_url(self.path)
+
+        # Initialize new snake
+        new_response = None
+
+        # Add a new snake to the list.
+        if resource == "snakes":
+            new_response = create_snake(post_body)
+
+        # Encode the new snake and send in response
+        self.wfile.write(json.dumps(new_response).encode())
 
     def _set_headers(self, status):
         """Sets the status code, Content-Type and Access-Control-Allow-Origin
@@ -71,10 +129,8 @@ class HandleRequests(BaseHTTPRequestHandler):
         """
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods',
-                        'GET, POST, PUT, DELETE')
-        self.send_header('Access-Control-Allow-Headers',
-                        'X-Requested-With, Content-Type, Accept')
+        self.send_header('Access-Control-Allow-Methods','GET, POST, PUT, DELETE')
+        self.send_header('Access-Control-Allow-Headers','X-Requested-With, Content-Type, Accept')
         self.end_headers()
 
 
