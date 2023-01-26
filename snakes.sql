@@ -71,3 +71,14 @@ insert into Snakes (id, name, owner_id, species_id, gender, color) values (28, '
 insert into Snakes (id, name, owner_id, species_id, gender, color) values (29, 'Stéphanie', 8, 5, 'Female', 'Purple');
 insert into Snakes (id, name, owner_id, species_id, gender, color) values (30, 'Liè', 7, 1, 'Female', 'Maroon');
 
+	SELECT 
+		a.id,
+		a.name,
+		a.owner_id,
+		a.species_id,
+		a.gender,
+		a.color,
+		b.id,
+		b.name
+	FROM Snakes a
+	JOIN Species b ON a.species_id = b.id

@@ -25,70 +25,55 @@ class HandleRequests(BaseHTTPRequestHandler):
             # This is the new parseInt()
             id = int(path_params[2])
         except IndexError:
+            self._set_headers(404)
             pass  # No route parameter exists: /species
         except ValueError:
+            self._set_headers(404)
             pass  # Request had trailing slash: /species/
-
         return (resource, id)  # This is a tuple
 
     def do_GET(self):
         """Handles GET requests to the server """
-        self._set_headers(200)
         response = {}
-        # content_len = int(self.headers.get('content-length', 0))
-        # post_body = self.rfile.read(content_len)
-        # post_body = json.dumps(post_body)
 
+        # if response == {}:
         (resource, id) = self.parse_url(self.path)
 
         if resource == "species":
             if id is not None:
                 response = get_single_species(id)
+                self._set_headers(200)
 
             else:
                 response = get_all_species()
+                self._set_headers(200)
 
         if resource == "snakes":
             if id is not None:
                 response = get_single_snake(id)
-
+                # checking value of response
+                if response != "":
+                    self._set_headers(200)
+                else:
+                    self._set_headers(405)
             else:
                 response = get_all_snakes()
-
-        # if resource == "snakes":
-        #     if id is not None:
-        #         if ['species_id'] == '2':
-        #             self._set_headers(405)
-        #             response = ""
-        #         else:
-        #             response = get_single_snake(id)
-
-        #     else:
-        #         response = get_all_snakes()
+                self._set_headers(200)
 
         if resource == "owners":
             if id is not None:
                 response = get_single_owner(id)
+                self._set_headers(200)
 
             else:
                 response = get_all_owners()
-
-        # self.wfile.write(json.dumps(response).encode())
-
-        # if resource == "snakes":
-        #     if id is not None:
-        #         success = (['species_id'] == '2')
-
-        #         if success:
-        #             self._set_headers(405)
-        #         else:
-        #             self._set_headers(200)
-        #             get_single_snake(id, response)
-
-        #     else:
-        #         response = get_all_snakes()
+                self._set_headers(200)
 
         self.wfile.write(json.dumps(response).encode())
+
+        # else:
+        #     self._set_headers(404)
+
 
     def do_POST(self):
         """Handles POST requests to the server"""

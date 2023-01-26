@@ -3,31 +3,8 @@
 # This module will hold the functions created to get_all_snakes, get_single_snakes, get_snakes_by_species, and create_snake
 
 import sqlite3
-from models import Snake
-from http.server import BaseHTTPRequestHandler, HTTPServer
-# from request_handler import _set_headers
+from models import Snake, Species
 
-
-def _set_headers(self, status):
-    """Sets the status code, Content-Type and Access-Control-Allow-Origin
-    headers on the response
-
-    Args:
-        status (number): the status code to return to the front end
-    """
-    self.send_response(status)
-    self.send_header('Content-type', 'application/json')
-    self.send_header('Access-Control-Allow-Origin', '*')
-    self.end_headers()
-
-def do_OPTIONS(self):
-    """Sets the options headers
-    """
-    self.send_response(200)
-    self.send_header('Access-Control-Allow-Origin', '*')
-    self.send_header('Access-Control-Allow-Methods','GET, POST, PUT, DELETE')
-    self.send_header('Access-Control-Allow-Headers','X-Requested-With, Content-Type, Accept')
-    self.end_headers()
 
 def get_all_snakes():
     # connection to the database
@@ -76,32 +53,39 @@ def get_single_snake(id):
         # Use a ? parameter to inject a variable's value
         # into the SQL statement.
         db_cursor.execute("""
-        SELECT 
-            a.id,
-            a.name,
-            a.owner_id,
-            a.species_id,
-            a.gender,
-            a.color
-        FROM Snakes a
-        WHERE a.id = ?
-        """, ( id, ))
+            SELECT 
+                a.id,
+                a.name,
+                a.owner_id,
+                a.species_id,
+                a.gender,
+                a.color,
+                b.id species_id,
+                b.name species_name
+            FROM Snakes a
+            JOIN Species b ON a.species_id = b.id
+            WHERE a.id = ?
+            """, ( id, ))
 
-        # Load the single result into memory
+            # Load the single result into memory
         data = db_cursor.fetchone()
 
-        # Create an snake instance from the current row
+            # Create an snake instance from the current row
         snake = Snake(data['id'], data['name'], data['owner_id'], data['species_id'], data['gender'], data['color'])
 
-        # (data, id) = self.parse_url(self.path)
-        if ['species_id'] == '2':
-            self._set_headers(405)
+        species = Species(data['species_id'], data['species_name'])
+
+        snake.species = species.__dict__
+
+        # snakes.append(snake.__dict__)
+
+        if species.name == 'Aonyx cinerea':
+            return ""
+
         else:
-            self._set_headers(200)
-            get_single_snake(id)
+            return snake.__dict__
 
-    return snake.__dict__
-
+# (data, id) = self.parse_url(self.path)
 
 def create_snake(new_snake):
     with sqlite3.connect("./snakes.sqlite3") as conn:
