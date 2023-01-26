@@ -18,19 +18,24 @@ class HandleRequests(BaseHTTPRequestHandler):
         path_params = path.split("/")
         resource = path_params[1]
         id = None
+        if resource != "snakes" and resource != "owners" and resource != "species":
+            self._set_headers(404)
 
-        # Try to get the item at index 2
-        try:
-            # Convert the string "1" to the integer 1
-            # This is the new parseInt()
-            id = int(path_params[2])
-        except IndexError:
-            self._set_headers(404)
-            pass  # No route parameter exists: /species
-        except ValueError:
-            self._set_headers(404)
-            pass  # Request had trailing slash: /species/
-        return (resource, id)  # This is a tuple
+        else:
+            # Try to get the item at index 2
+            try:
+                # Convert the string "1" to the integer 1
+                # This is the new parseInt()
+                id = int(path_params[2])
+            except IndexError:
+                # self._set_headers(404)
+                pass  # No route parameter exists: /species
+            except ValueError:
+                # self._set_headers(404)
+                pass  # Request had trailing slash: /species/
+            return (resource, id)  # This is a tuple
+        # else:
+        #     self._set_headers(404)
 
     def do_GET(self):
         """Handles GET requests to the server """
@@ -42,7 +47,10 @@ class HandleRequests(BaseHTTPRequestHandler):
         if resource == "species":
             if id is not None:
                 response = get_single_species(id)
-                self._set_headers(200)
+                if response == "Invalid request":
+                    self._set_headers(404)
+                else:
+                    self._set_headers(200)
 
             else:
                 response = get_all_species()
@@ -52,10 +60,12 @@ class HandleRequests(BaseHTTPRequestHandler):
             if id is not None:
                 response = get_single_snake(id)
                 # checking value of response
-                if response != "":
-                    self._set_headers(200)
-                else:
+                if response == "":
                     self._set_headers(405)
+                elif response == "Invalid request":
+                    self._set_headers(404)
+                else:
+                    self._set_headers(200)
             else:
                 response = get_all_snakes()
                 self._set_headers(200)
@@ -63,7 +73,10 @@ class HandleRequests(BaseHTTPRequestHandler):
         if resource == "owners":
             if id is not None:
                 response = get_single_owner(id)
-                self._set_headers(200)
+                if response == "Invalid request":
+                    self._set_headers(404)
+                else:
+                    self._set_headers(200)
 
             else:
                 response = get_all_owners()

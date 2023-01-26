@@ -61,7 +61,11 @@ def get_single_owner(id):
         # Load the single result into memory
         data = db_cursor.fetchone()
 
-        # Create an owner instance from the current row
-        owner = Owner(data['id'], data['first_name'], data['last_name'], data['email'])
+        if data is None:
+            return "Invalid request"
 
-    return owner.__dict__
+        else:
+            # Create an owner instance from the current row
+            owner = Owner(data['id'], data['first_name'], data['last_name'], data['email'])
+
+        return owner.__dict__

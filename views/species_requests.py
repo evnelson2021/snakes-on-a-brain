@@ -57,7 +57,11 @@ def get_single_species(id):
         # Load the single result into memory
         data = db_cursor.fetchone()
 
-        # Create an species instance from the current row
-        singleSpecies = Species(data['id'], data['name'])
+        if data is None:
+            return "Invalid request"
 
-    return singleSpecies.__dict__
+        else:
+            # Create an species instance from the current row
+            singleSpecies = Species(data['id'], data['name'])
+
+        return singleSpecies.__dict__

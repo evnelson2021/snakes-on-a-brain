@@ -5,7 +5,6 @@
 import sqlite3
 from models import Snake, Species
 
-
 def get_all_snakes():
     # connection to the database
     with sqlite3.connect("./snakes.sqlite3") as conn:
@@ -70,20 +69,24 @@ def get_single_snake(id):
             # Load the single result into memory
         data = db_cursor.fetchone()
 
-            # Create an snake instance from the current row
-        snake = Snake(data['id'], data['name'], data['owner_id'], data['species_id'], data['gender'], data['color'])
-
-        species = Species(data['species_id'], data['species_name'])
-
-        snake.species = species.__dict__
-
-        # snakes.append(snake.__dict__)
-
-        if species.name == 'Aonyx cinerea':
-            return ""
+        if data is None:
+            return "Invalid request"
 
         else:
-            return snake.__dict__
+            # Create an snake instance from the current row
+            snake = Snake(data['id'], data['name'], data['owner_id'], data['species_id'], data['gender'], data['color'])
+
+            species = Species(data['species_id'], data['species_name'])
+
+            snake.species = species.__dict__
+
+            # snakes.append(snake.__dict__)
+
+            if species.name == 'Aonyx cinerea':
+                return ""
+
+            else:
+                return snake.__dict__
 
 # (data, id) = self.parse_url(self.path)
 
